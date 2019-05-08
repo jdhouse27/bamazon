@@ -62,13 +62,18 @@ function askID() {
             ]).then(function(answer2) {
 
               if (answer2.quantity <= quant){
+                // create new variable of the difference
                 let newQuant = quant - answer2.quantity;
+                // create new update query
                 let query2 = "UPDATE products SET ? WHERE item_id =" + prodID;
+
                   connection.query(query2, {stock_quantity: newQuant}, function(err, res) {
-                if (err) throw err; 
-                console.log(res)
-                console.log("You have purchased " + answer2.quantity + " unit(s) of " + prod);
-                connection.end();
+                
+                    if (err) throw err;
+                
+                    console.log("You have purchased " + answer2.quantity + " unit(s) of " + prod);
+                
+                    connection.end();
                 
                   });
                 }

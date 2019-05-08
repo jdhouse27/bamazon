@@ -16,5 +16,13 @@
   "bugs": {
     "url": "https://github.com/jdhouse27/bamazon/issues"
   },
-  "homepage": "https://github.com/jdhouse27/bamazon#readme"
+  "homepage": "https://github.com/jdhouse27/bamazon#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "console-table-printer": "^1.0.0-beta13",
+    "dotenv": "^8.0.0",
+    "fs": "0.0.1-security",
+    "mysql": "^2.17.1",
+    "table": "^5.2.3"
+  }
 }

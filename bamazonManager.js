@@ -84,7 +84,7 @@ function addInventory() {
 
         inquirer.prompt({
             name: "addAction",
-            type: "input",
+            type: "number",
             message: "What item_id would you like to add to?",
                 
         }).then(function(answer) {
@@ -109,14 +109,14 @@ function addInventory() {
                     type: "confirm",
                     message: "Is this the correct product?",
                     default: true
-                }).then(function(answer) {
-                    if (answer.confirm){
+                }).then(function(answer2) {
+                    if (answer2.confirm){
                         inquirer.prompt({
-                            name: "addProd",
-                            type: "input",
+                            name: "addInvent",
+                            type: "number",
                             message: "How many would you like to add"
-                        }).then(function(answer2) {
-                            let newQuant = parseInt(quant) + parseInt(answer2.addProd);
+                        }).then(function(answer3) {
+                            let newQuant = parseInt(quant) + parseInt(answer3.addInvent);
                             // create new update query
                             let query2 = "UPDATE products SET ? WHERE item_id =" + prodID;
                             
@@ -133,11 +133,50 @@ function addInventory() {
                     }
                 })
             });
-
         });
     });
 }
 
 function addNew() {
+    inquirer.prompt({
+        name: "addProd",
+        type: "input",
+        message: "What product would you like to add?",
+    }).then(function(answer4) {
+        let addProd = answer4.addProd;
 
-}
+        inquirer.prompt({
+                name: "addDepart",
+                type: "input",
+                message: "What department does new product belong to?"
+        }).then(function(answer5) {
+            let addDepart = answer5.addDepart;
+
+            inquirer.prompt({
+                name: "addPrice",
+                type: "number",
+                message: "What is this product's price?"
+            }).then(function(answer6) {
+                let addPrice = parseFloat(answer6.addPrice);
+
+                inquirer.prompt({
+                    name: "addNewQuant",
+                    type: "input",
+                    message: "How many products are available?"
+                }).then(function(answer7) {
+                    let addNewQuant = parseInt(answer7.addNewQuant);                    
+                    let newProdQuery = "INSERT INTO products SET ?";
+                    
+                    connection.query(newProdQuery, {product_name: addProd, department_name: addDepart, price: addPrice, stock_quantity: addNewQuant} , function(err, res) {    
+                        // console.log("product_name: " + addProd + "\n" + "department_name: " + addDepart + "\n" + "price: " + addPrice + "\n" + "stock_quantity: " + addNewQuant);                        
+                        // console.log(res);                         
+                        console.log("\n" + "===========================================" + "\n"
+                        + addProd + " has been added with a price of " + addPrice + " and quantity of " 
+                        + addNewQuant + "!" + "\n" + "===========================================" + "\n")
+                        menu();
+                        });                    
+                    });
+                });
+            });
+        });
+    }

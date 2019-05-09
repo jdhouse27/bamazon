@@ -66,15 +66,12 @@ function askID() {
                 let newQuant = quant - answer2.quantity;
                 // create new update query
                 let query2 = "UPDATE products SET ? WHERE item_id =" + prodID;
-
                   connection.query(query2, {stock_quantity: newQuant}, function(err, res) {
                 
                     if (err) throw err;
                 
-                    console.log("You have purchased " + answer2.quantity + " unit(s) of " + prod);
-                
-                    connection.end();
-                
+                    console.log("You have purchased " + answer2.quantity + " unit(s) of " + prod);          
+                    connection.end();                
                   });
                 }
               });

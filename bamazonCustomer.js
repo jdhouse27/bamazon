@@ -5,6 +5,11 @@ const bamazon = keys.bamazon;
 const {printTable} = require('console-table-printer');
 const inquirer = require("inquirer");
 
+let quant = "";
+let prodID = "";
+let prod = "";
+let price = "";
+
 // create the connection information for the sql database
 const connection = mysql.createConnection({
     host: "localhost",
@@ -27,61 +32,127 @@ const connection = mysql.createConnection({
     connection.query("SELECT * FROM products", function(err, res) {
       if (err) throw err; 
       printTable(res);
-      askID();
+      ask();
     });
   }
 
-function askID() {
-  inquirer.prompt([
-    {
+function ask(){
+  inquirer.prompt({
+    
+      type: "list",
+      name: "action",
+      message: "Welcome to our online store.  Please select an option",
+      choices: [
+        "I would like to place an order?",
+        "Exit"
+        ]
+    })
+    .then(function(answer){
+        switch (answer.action) {
+          case "I would like to place an order?":
+            order();
+            break;
+        
+          case "Exit":
+            exit();
+            break;
+        }
+      });
+  }       
+
+function order() {
+  inquirer.prompt({
       type: "input",
       name: "itemID",
-      message: "What is the ID of the item you would like to purchase?"
-    }
-      ]).then(function(answer) {
-        let query = "SELECT * FROM products WHERE ?";
-        connection.query(query, { item_id: answer.itemID}, function(err, res) {
-          if (err) throw err; 
+      message: "What is the ID of the item you would like to purchase?",
+    })
+  .then(function(answer) {
+    let query = "SELECT * FROM products WHERE ?";
+    
+    connection.query(query, { item_id: answer.itemID}, function(err, res) {
+      if (err) throw err; 
 
-          let quant = res[0].stock_quantity;
-          let prodID = res[0].item_id;
-          let prod = res[0].product_name;
-          let price = res[0].price;
+      quant = res[0].stock_quantity;
+      prodID = res[0].item_id;
+      prod = res[0].product_name;
+      price = res[0].price;
 
-          if (quant > 0){
-          //log customer item
-          console.log("Item: " + prod + " | Price: " + price + " | Items available: " + quant);
-                    
-          //ask customer how many they would like to purchase
-            inquirer.prompt([
-              {
-                type: "input",
-                name: "quantity",
-                message: "How many would you like to purchase?"
-              },
-            ]).then(function(answer2) {
-
-              if (answer2.quantity <= quant){
-                // create new variable of the difference
-                let newQuant = quant - answer2.quantity;
-                // create new update query
-                let query2 = "UPDATE products SET ? WHERE item_id =" + prodID;
-                  connection.query(query2, {stock_quantity: newQuant}, function(err, res) {
-                
-                    if (err) throw err;
-                
-                    console.log("You have purchased " + answer2.quantity + " unit(s) of " + prod);          
-                    connection.end();                
-                  });
-                }
-              });
-
-          // quantity is 0, ask customer to select a new item
-        } else {
-          console.log("Sorry we currently do not have " + res[0].product_name + "in stock.  May we find you another item?")
-          askID();
-          }
+      if (quant > 0) {
+        //log customer item       
+        console.log(
+          "\n" + "===============================================" + "\n" +
+          "Item: " + prod + " | Price: " + price + " | Items available: " + quant
+          + "\n" + "===============================================" + "\n");
+        orderCorrect();
+      
+       // quantity is 0, ask customer to select a new item
+      } else {
+        console.log("Sorry we currently do not have " + res[0].product_name + "in stock.  May we find you another item?")
+        askID();
+        }
       });
     });
   }
 
+function exit() {
+  console.log("Ok, thank you for stopping by.  Come back soon!");
+  connection.end();
+};
+
+
+function orderCorrect(){
+  inquirer.prompt({
+      type: "list",
+      name: "action",
+      message: "Is the the correct product?",
+      choices: [
+        "Yes, I would like to place an order?",
+        "No"
+        ]
+    })
+    .then(function(answer){
+      switch (answer.action) {
+        case "Yes, I would like to place an order?":
+          quantCheck();
+          break;
+      
+        case "No":
+          order();
+          break;
+      }
+    });
+};
+
+//ask customer how many they would like to purchase
+function quantCheck() {
+
+  console.log("Ok great!")
+
+  inquirer.prompt({
+      type: "input",
+      name: "quantity",
+      message: "How many would you like to purchase?"
+    })
+    .then(function(answer2) {
+    
+    if (answer2.quantity <= quant){
+      // create new variable of the difference
+      let newQuant = quant - answer2.quantity;
+      // create new update query
+      let query2 = "UPDATE products SET ? WHERE item_id =" + prodID;
+        connection.query(query2, {stock_quantity: newQuant}, function(err, res) {              
+          if (err) throw err;  
+
+          console.log(
+            "\n" + "===============================================" + "\n" +
+            "You have purchased " + answer2.quantity + " unit(s) of  the " + prod + " product."
+            + "\n" + "===============================================" + "\n");   
+        });
+      let productSales = parseFloat(price) * parseFloat(answer2.quantity);
+        productSales = parseFloat(productSales);
+        connection.query(query2, {product_sales: productSales}, function(err, res){
+          connection.end();                
+        });               
+      }
+    });
+}

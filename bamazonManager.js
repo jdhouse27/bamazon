@@ -62,7 +62,7 @@ function menu(){
 }
 
 function viewProducts() {
-    connection.query("SELECT * FROM products", function(err, res) {
+    connection.query("SELECT item_id, product_name, department_name, price, stock_quantity, product_sales FROM products", function(err, res) {
         if (err) throw err; 
         printTable(res);
         menu();
@@ -70,7 +70,7 @@ function viewProducts() {
 }
 
 function viewLow() {
-    connection.query("SELECT * FROM products WHERE stock_quantity <= 5", function(err, res) {
+    connection.query("SELECT item_id, product_name, department_name, price, stock_quantity, product_sales FROM products WHERE stock_quantity <= 5", function(err, res) {
         if (err) throw err; 
         printTable(res);
         menu();
@@ -78,7 +78,7 @@ function viewLow() {
 }
 
 function addInventory() {
-    connection.query("SELECT * FROM products", function(err, res) {
+    connection.query("SELECT item_id, product_name, department_name, price, stock_quantity, product_sales FROM products", function(err, res) {
         if (err) throw err; 
         printTable(res);
 

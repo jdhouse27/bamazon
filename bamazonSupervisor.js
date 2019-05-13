@@ -54,16 +54,15 @@ function sales() {
   let profitCount = "";  
   let dep = "";
     connection.query("SELECT * FROM departments", function(err, res){ 
+        profitCount = parseFloat(res[0].product_sales) - parseFloat(res[0].over_head_costs);
         for (let i = 0; i<res.length; i++){
-            profitCount = parseFloat(res[i].product_sales) - parseFloat(res[i].over_head_costs);
             dep = res[i].department_id;
-            }
-            // console.log(profitCount);
-            let query3 ="UPDATE departments SET ? WHERE department_id =" + dep;
-            connection.query(query3, {total_profit: profitCount}, function(err, res){        
-                // console.log(res);
-                returnSales();
-                });   
+        }
+    });
+
+    let query3 ="UPDATE departments SET ? WHERE department_id =" + dep;
+    connection.query(query3, {total_profit: profitCount}, function(err, res){
+        returnSales();
     });
 };
 

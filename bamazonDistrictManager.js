@@ -28,14 +28,14 @@ function menu(){
         type: "list",
         message: "What would you like to do today?",
         choices: [
-            "View Products Sales by Department",            
+            "View Department Sales by Department",            
             "Create New Department",           
             "Exit"
             ]
     })
     .then(function(answer){
         switch (answer.action) {
-        case "View Products Sales by Department":
+        case "View Department Sales by Department":
             modDepart();
             break;
 

@@ -29,7 +29,7 @@ const connection = mysql.createConnection({
   });
   
   function Products() {
-    connection.query("SELECT * FROM products", function(err, res) {
+    connection.query("SELECT item_id, product_name, price FROM products", function(err, res) {
       if (err) throw err; 
       printTable(res);
       ask();
@@ -87,8 +87,8 @@ function order() {
       
        // quantity is 0, ask customer to select a new item
       } else {
-        console.log("Sorry we currently do not have " + res[0].product_name + "in stock.  May we find you another item?")
-        askID();
+        console.log("Sorry we currently do not have " + res[0].product_name + " in stock.  May we find you another item?")
+        ask();
         }
       });
     });

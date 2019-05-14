@@ -54,9 +54,7 @@ function modDepart (){
     connection.query("SELECT * FROM departments", function(err, res){ 
         for (let i = 0; i<res.length; i++){          
           let id = res[i].department_id;
-          console.log(id);
           connection.query("UPDATE departments AS d INNER JOIN (SELECT department_id, SUM(product_sales) AS department_sales FROM products GROUP BY department_id) AS p ON d.department_id = p.department_id SET d.department_sales = p.department_sales WHERE d.department_id =" + id, function(err, res){     
-            //   console.log(res);
             });
           }
         sales();
@@ -84,7 +82,7 @@ function returnSales () {
 function department() {
     connection.query("SELECT * FROM departments", function(err, res) {
         if (err) throw err; 
-        printTable(res);
+        // printTable(res);
 
         inquirer.prompt([
         {
@@ -108,19 +106,18 @@ function department() {
          .then(function(answer) {
          
             let depart = answer.addDepart;
-            let over = parseFloat(answer.addOver);
+            let over = answer.addOver;
             let sales = answer.addSales;
             let profit = answer.addProfit;
            
             // create new update query
-            let query2 = "INSERT INTO departments SET ?";
-
-            connection.query(query2, {department_name: depart, over_head_costs: over, product_sales: sales, total_profit: profit}, function(err, res) {
-            console.log("\n" + "===========================================" + "\n"
+            let query2 = "INSERT INTO departments (department_name, over_head_costs, department_sales, total_profit) VALUES (" + " '" + depart + "', '" + over + "', '" + sales +"', '" + profit + "')";
+            connection.query(query2, function(err, res) {
+            // console.log(query2);
+            
+                console.log("\n" + "===========================================" + "\n"
                         + "You added the new department: " + depart + "!" + "\n"
                         + "===========================================" + "\n")
-
-            console.log(res);
             menu();
             })
         });

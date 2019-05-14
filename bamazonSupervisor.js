@@ -54,7 +54,9 @@ function modDepart (){
     connection.query("SELECT * FROM departments", function(err, res){ 
         for (let i = 0; i<res.length; i++){          
           let id = res[i].department_id;
+          console.log(id);
           connection.query("UPDATE departments AS d INNER JOIN (SELECT department_id, SUM(product_sales) AS department_sales FROM products GROUP BY department_id) AS p ON d.department_id = p.department_id SET d.department_sales = p.department_sales WHERE d.department_id =" + id, function(err, res){     
+            //   console.log(res);
             });
           }
         sales();

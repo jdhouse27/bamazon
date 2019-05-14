@@ -9,7 +9,6 @@ let quant = "";
 let prodID = "";
 let prod = "";
 let price = "";
-let departName = "";
 
 // create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -30,7 +29,7 @@ const connection = mysql.createConnection({
   });
   
   function Products() {
-    connection.query("SELECT item_id, product_name, price FROM products", function(err, res) {
+    connection.query("SELECT * FROM products", function(err, res) {
       if (err) throw err; 
       printTable(res);
       ask();
@@ -65,7 +64,7 @@ function order() {
   inquirer.prompt({
       type: "input",
       name: "itemID",
-      message: "Please enter the number of the item_ID you would like to purchase.",
+      message: "What is the ID of the item you would like to purchase?",
     })
   .then(function(answer) {
     let query = "SELECT * FROM products WHERE ?";
@@ -77,23 +76,19 @@ function order() {
       prodID = res[0].item_id;
       prod = res[0].product_name;
       price = res[0].price;
-      departName = res[0].department_name;
 
       if (quant > 0) {
         //log customer item       
         console.log(
-          "\n" + "==============================================================" + "\n" +
+          "\n" + "===============================================" + "\n" +
           "Item: " + prod + " | Price: " + price + " | Items available: " + quant
-          + "\n" + "==============================================================" + "\n");
+          + "\n" + "===============================================" + "\n");
         orderCorrect();
       
        // quantity is 0, ask customer to select a new item
       } else {
-        console.log(
-          "\n" + "==============================================================" + "\n" +
-          "Sorry we currently do not have " + res[0].product_name + "in stock.  May we find you another item?"
-          + "\n" + "==============================================================" + "\n");
-        ask();
+        console.log("Sorry we currently do not have " + res[0].product_name + "in stock.  May we find you another item?")
+        askID();
         }
       });
     });
@@ -131,10 +126,12 @@ function orderCorrect(){
 //ask customer how many they would like to purchase
 function quantCheck() {
 
+  console.log("Ok great!")
+
   inquirer.prompt({
       type: "input",
       name: "quantity",
-      message: "Ok, How many would you like to purchase?"
+      message: "How many would you like to purchase?"
     })
     .then(function(answer2) {
     
@@ -147,26 +144,15 @@ function quantCheck() {
           if (err) throw err;  
 
           console.log(
-            "\n" + "==============================================================" + "\n" +
-            "You have purchased " + answer2.quantity + " unit(s) of the " + prod + " product."
-            + "\n" + "==============================================================" + "\n");   
-          });
-            
-
-            let productSales = parseFloat(price) * parseFloat(answer2.quantity);
-            productSales = parseFloat(productSales);
-            let query3 = "UPDATE products SET ? WHERE department_name=" + departName;
-            connection.query(query3, {product_sales: productSales}, function(err, res){
-              connection.end();      
-              
-        })
-        ;               
-      } else {
-        console.log(
-          "\n" + "==============================================================" + "\n" +
-          "Sorry we currently only have " + quant + " of your in stock.  Please adjust your quantity."
-          + "\n" + "==============================================================" + "\n");
-          quantCheck();
+            "\n" + "===============================================" + "\n" +
+            "You have purchased " + answer2.quantity + " unit(s) of  the " + prod + " product."
+            + "\n" + "===============================================" + "\n");   
+        });
+      let productSales = parseFloat(price) * parseFloat(answer2.quantity);
+        productSales = parseFloat(productSales);
+        connection.query(query2, {product_sales: productSales}, function(err, res){
+          connection.end();                
+        });               
       }
     });
 }

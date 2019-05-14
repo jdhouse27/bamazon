@@ -36,7 +36,7 @@ function menu(){
     .then(function(answer){
         switch (answer.action) {
         case "View Products Sales by Department":
-            sales();
+            modDepart();
             break;
 
         case "Create New Department":
@@ -50,25 +50,28 @@ function menu(){
     });
 }
 
-function sales() {
-  let profitCount = "";  
-  let dep = "";
+function modDepart (){
     connection.query("SELECT * FROM departments", function(err, res){ 
-        profitCount = parseFloat(res[0].product_sales) - parseFloat(res[0].over_head_costs);
-        for (let i = 0; i<res.length; i++){
-            dep = res[i].department_id;
-        }
-    });
-
-    let query3 ="UPDATE departments SET ? WHERE department_id =" + dep;
-    connection.query(query3, {total_profit: profitCount}, function(err, res){
-        returnSales();
-    });
+        for (let i = 0; i<res.length; i++){          
+          let id = res[i].department_id;
+          connection.query("UPDATE departments AS d INNER JOIN (SELECT department_id, SUM(product_sales) AS department_sales FROM products GROUP BY department_id) AS p ON d.department_id = p.department_id SET d.department_sales = p.department_sales WHERE d.department_id =" + id, function(err, res){     
+            });
+          }
+        sales();
+     });
+};
+    
+function sales() {
+        let query ="UPDATE departments SET total_profit = (department_sales - over_head_costs)";
+        connection.query(query, function(err, res){
+            returnSales();
+        });
 };
 
 function returnSales () {
-    let salesQuery = "SELECT department_name, SUM(product_sales) AS department_sales, over_head_costs, total_profit FROM departments GROUP BY department_name ORDER BY department_sales desc";
+    let salesQuery = "SELECT * FROM departments";
     connection.query(salesQuery, function(err, res) {
+        // console.log(salesQuery)
         if (err) throw err; 
         printTable(res);
         menu();
@@ -114,6 +117,8 @@ function department() {
             console.log("\n" + "===========================================" + "\n"
                         + "You added the new department: " + depart + "!" + "\n"
                         + "===========================================" + "\n")
+
+            console.log(res);
             menu();
             })
         });

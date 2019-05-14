@@ -9,6 +9,7 @@ let quant = "";
 let prodID = "";
 let prod = "";
 let price = "";
+let salePro = "";
 
 // create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -69,13 +70,14 @@ function order() {
   .then(function(answer) {
     let query = "SELECT * FROM products WHERE ?";
     
-    connection.query(query, { item_id: answer.itemID}, function(err, res) {
+    connection.query(query, {item_id: answer.itemID}, function(err, res) {
       if (err) throw err; 
-
+        
       quant = res[0].stock_quantity;
       prodID = res[0].item_id;
       prod = res[0].product_name;
       price = res[0].price;
+      salePro = res[0].product_sales
 
       if (quant > 0) {
         //log customer item       
@@ -150,7 +152,8 @@ function quantCheck() {
         });
       let productSales = parseFloat(price) * parseFloat(answer2.quantity);
         productSales = parseFloat(productSales);
-        connection.query(query2, {product_sales: productSales}, function(err, res){
+        let newProductSales = parseInt(productSales) + parseInt(salePro);
+        connection.query(query2, {product_sales: newProductSales}, function(err, res){
           connection.end();                
         });               
       }
